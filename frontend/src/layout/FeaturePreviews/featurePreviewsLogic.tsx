@@ -1,7 +1,7 @@
 import { actions, connect, kea, listeners, path, reducers, selectors } from 'kea'
 import { loaders } from 'kea-loaders'
 import { supportLogic } from 'lib/components/Support/supportLogic'
-import { FeatureFlagKey } from 'lib/constants'
+import { FEATURE_FLAGS, FeatureFlagKey } from 'lib/constants'
 import { featureFlagLogic } from 'lib/logic/featureFlagLogic'
 import { EarlyAccessFeature, posthog } from 'posthog-js'
 import { userLogic } from 'scenes/userLogic'
@@ -9,7 +9,7 @@ import { userLogic } from 'scenes/userLogic'
 import type { featurePreviewsLogicType } from './featurePreviewsLogicType'
 
 /** Features that can only be toggled if you fall under the `${flagKey}-preview` flag */
-export const CONSTRAINED_PREVIEWS: Set<FeatureFlagKey> = new Set([])
+export const CONSTRAINED_PREVIEWS: Set<FeatureFlagKey> = new Set([FEATURE_FLAGS.ARTIFICIAL_HOG])
 
 export interface EnrichedEarlyAccessFeature extends Omit<EarlyAccessFeature, 'flagKey'> {
     flagKey: string
