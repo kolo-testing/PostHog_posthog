@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, Optional
 
 from posthog.hogql import ast
 from posthog.hogql.parser import parse_select
@@ -27,7 +27,9 @@ class FunnelUDF(FunnelBase):
             self.context.funnelWindowInterval * DATERANGE_MAP[self.context.funnelWindowIntervalUnit].total_seconds()
         )
 
-    def get_query(self) -> ast.SelectQuery:
+    # This is the function that calls the UDF
+    # This is used by both the query itself and the actors query
+    def _inner_aggregation_query(self):
         if self.context.funnelsFilter.funnelOrderType == "strict":
             inner_event_query = self._get_inner_event_query_for_udf(
                 entity_name="events", skip_step_filter=True, skip_entity_filter=True
@@ -63,31 +65,6 @@ class FunnelUDF(FunnelBase):
 
         breakdown_attribution_string = f"{self.context.breakdownAttributionType}{f'_{self.context.funnelsFilter.breakdownAttributionValue}' if self.context.breakdownAttributionType == BreakdownAttributionType.STEP else ''}"
 
-        # test
-        '''
-        inner_select = parse_select(
-            f"""
-                    SELECT
-                        arrayJoin({fn}(
-                            {self.context.max_steps},
-                            {self.conversion_window_limit()},
-                            '{breakdown_attribution_string}',
-                            '{self.context.funnelsFilter.funnelOrderType}',
-                            {prop_vals},
-                            arraySort(t -> t.1, groupArray(tuple(toFloat(timestamp), {prop_selector}, arrayFilter((x) -> x != 0, [{steps}{exclusions}]))))
-                        )) as af_tuple,
-                        af_tuple.1 as af,
-                        af_tuple.2 as breakdown,
-                        af_tuple.3 as timings
-                    FROM {{inner_event_query}}
-                    GROUP BY aggregation_target{breakdown_prop}
-                    HAVING af >= 0
-                """,
-            {"inner_event_query": inner_event_query},
-        )
-        return inner_select
-        '''
-
         inner_select = parse_select(
             f"""
             SELECT
@@ -101,13 +78,18 @@ class FunnelUDF(FunnelBase):
                 )) as af_tuple,
                 af_tuple.1 as af,
                 af_tuple.2 as breakdown,
-                af_tuple.3 as timings
+                af_tuple.3 as timings,
+                aggregation_target
             FROM {{inner_event_query}}
             GROUP BY aggregation_target{breakdown_prop}
             HAVING af >= 0
         """,
             {"inner_event_query": inner_event_query},
         )
+        return inner_select
+
+    def get_query(self) -> ast.SelectQuery:
+        inner_select = self._inner_aggregation_query()
 
         step_results = ",".join(
             [f"countIf(ifNull(equals(af, {i}), 0)) AS step_{i+1}" for i in range(self.context.max_steps)]
@@ -182,3 +164,31 @@ class FunnelUDF(FunnelBase):
         )
 
         return cast(ast.SelectQuery, s)
+
+    def actor_query(
+        self,
+        extra_fields: Optional[list[str]] = None,
+    ) -> ast.SelectQuery:
+        inner_select = self._inner_aggregation_query()
+
+        funnelStep = self.context.actorsQuery.funnelStep
+
+        if funnelStep > 0:
+            where = f"af >= {funnelStep - 1}"
+        else:
+            where = f"af = {-funnelStep - 2}"
+
+        s = parse_select(
+            f"""
+            SELECT
+                aggregation_target AS actor_id,
+                [] AS matching_events
+            FROM
+                {{inner_select}}
+            WHERE
+                {where}
+        """,
+            {"inner_select": inner_select},
+        )
+
+        return s

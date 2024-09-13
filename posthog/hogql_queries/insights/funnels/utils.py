@@ -22,8 +22,9 @@ def get_funnel_order_class(funnelsFilter: FunnelsFilter, use_udf=False):
     return Funnel
 
 
-def get_funnel_actor_class(funnelsFilter: FunnelsFilter):
+def get_funnel_actor_class(funnelsFilter: FunnelsFilter, use_udf=False):
     from posthog.hogql_queries.insights.funnels import (
+        FunnelUDF,
         FunnelActors,
         FunnelStrictActors,
         FunnelUnorderedActors,
@@ -34,6 +35,8 @@ def get_funnel_actor_class(funnelsFilter: FunnelsFilter):
         return FunnelTrendsActors
     if funnelsFilter.funnelOrderType == StepOrderValue.UNORDERED:
         return FunnelUnorderedActors
+    if use_udf:
+        return FunnelUDF
     if funnelsFilter.funnelOrderType == StepOrderValue.STRICT:
         return FunnelStrictActors
     return FunnelActors
