@@ -74,11 +74,12 @@ class FunnelUDF(FunnelBase):
                     '{breakdown_attribution_string}',
                     '{self.context.funnelsFilter.funnelOrderType}',
                     {prop_vals},
-                    arraySort(t -> t.1, groupArray(tuple(toFloat(timestamp), {prop_selector}, arrayFilter((x) -> x != 0, [{steps}{exclusions}]))))
+                    arraySort(t -> t.1, groupArray(tuple(toFloat(timestamp), uuid, {prop_selector}, arrayFilter((x) -> x != 0, [{steps}{exclusions}]))))
                 )) as af_tuple,
                 af_tuple.1 as af,
                 af_tuple.2 as breakdown,
                 af_tuple.3 as timings,
+                af_tuple.4 as matched_events_array,
                 aggregation_target
             FROM {{inner_event_query}}
             GROUP BY aggregation_target{breakdown_prop}
