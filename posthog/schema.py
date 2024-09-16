@@ -20,6 +20,13 @@ class MathGroupTypeIndex(float, Enum):
     NUMBER_4 = 4
 
 
+class ActionConversionGoal(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    actionId: int
+
+
 class AggregationAxisFormat(StrEnum):
     NUMERIC = "numeric"
     DURATION = "duration"
@@ -284,6 +291,13 @@ class CountPerActorMathType(StrEnum):
     P90_COUNT_PER_ACTOR = "p90_count_per_actor"
     P95_COUNT_PER_ACTOR = "p95_count_per_actor"
     P99_COUNT_PER_ACTOR = "p99_count_per_actor"
+
+
+class CustomEventConversionGoal(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+    )
+    customEventName: str
 
 
 class DataWarehouseEventsModifier(BaseModel):
@@ -1452,13 +1466,6 @@ class VizSpecificOptions(BaseModel):
     )
     ActionsPie: Optional[ActionsPie] = None
     RETENTION: Optional[RETENTION] = None
-
-
-class WebAnalyticsConversionGoal(BaseModel):
-    model_config = ConfigDict(
-        extra="forbid",
-    )
-    actionId: int
 
 
 class Sampling(BaseModel):
@@ -3742,7 +3749,7 @@ class WebExternalClicksTableQuery(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    conversionGoal: Optional[WebAnalyticsConversionGoal] = None
+    conversionGoal: Optional[Union[ActionConversionGoal, CustomEventConversionGoal]] = None
     dateRange: Optional[DateRange] = None
     filterTestAccounts: Optional[bool] = None
     kind: Literal["WebExternalClicksTableQuery"] = "WebExternalClicksTableQuery"
@@ -3761,7 +3768,7 @@ class WebGoalsQuery(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    conversionGoal: Optional[WebAnalyticsConversionGoal] = None
+    conversionGoal: Optional[Union[ActionConversionGoal, CustomEventConversionGoal]] = None
     dateRange: Optional[DateRange] = None
     filterTestAccounts: Optional[bool] = None
     kind: Literal["WebGoalsQuery"] = "WebGoalsQuery"
@@ -3780,7 +3787,7 @@ class WebOverviewQuery(BaseModel):
         extra="forbid",
     )
     compare: Optional[bool] = None
-    conversionGoal: Optional[WebAnalyticsConversionGoal] = None
+    conversionGoal: Optional[Union[ActionConversionGoal, CustomEventConversionGoal]] = None
     dateRange: Optional[DateRange] = None
     filterTestAccounts: Optional[bool] = None
     kind: Literal["WebOverviewQuery"] = "WebOverviewQuery"
@@ -3798,7 +3805,7 @@ class WebStatsTableQuery(BaseModel):
         extra="forbid",
     )
     breakdownBy: WebStatsBreakdown
-    conversionGoal: Optional[WebAnalyticsConversionGoal] = None
+    conversionGoal: Optional[Union[ActionConversionGoal, CustomEventConversionGoal]] = None
     dateRange: Optional[DateRange] = None
     doPathCleaning: Optional[bool] = None
     filterTestAccounts: Optional[bool] = None
@@ -3819,7 +3826,7 @@ class WebTopClicksQuery(BaseModel):
     model_config = ConfigDict(
         extra="forbid",
     )
-    conversionGoal: Optional[WebAnalyticsConversionGoal] = None
+    conversionGoal: Optional[Union[ActionConversionGoal, CustomEventConversionGoal]] = None
     dateRange: Optional[DateRange] = None
     filterTestAccounts: Optional[bool] = None
     kind: Literal["WebTopClicksQuery"] = "WebTopClicksQuery"
