@@ -585,23 +585,8 @@
                   e.`$session_id` AS `$session_id`,
                   e.`$window_id` AS `$window_id`,
                   if(equals(e.event, 'step one'), 1, 0) AS step_0,
-                  if(ifNull(equals(step_0, 1), 0), timestamp, NULL) AS latest_0,
-                  if(ifNull(equals(step_0, 1), 0), uuid, NULL) AS uuid_0,
-                  if(ifNull(equals(step_0, 1), 0), `$session_id`, NULL) AS `$session_id_0`,
-                  if(ifNull(equals(step_0, 1), 0), `$window_id`, NULL) AS `$window_id_0`,
                   if(equals(e.event, 'step two'), 1, 0) AS step_1,
-                  if(ifNull(equals(step_1, 1), 0), timestamp, NULL) AS latest_1,
-                  if(ifNull(equals(step_1, 1), 0), uuid, NULL) AS uuid_1,
-                  if(ifNull(equals(step_1, 1), 0), `$session_id`, NULL) AS `$session_id_1`,
-                  if(ifNull(equals(step_1, 1), 0), `$window_id`, NULL) AS `$window_id_1`,
-                  if(equals(e.event, 'step three'), 1, 0) AS step_2,
-                  if(ifNull(equals(step_2, 1), 0), timestamp, NULL) AS latest_2,
-                  if(ifNull(equals(step_2, 1), 0), uuid, NULL) AS uuid_2,
-                  if(ifNull(equals(step_2, 1), 0), `$session_id`, NULL) AS `$session_id_2`,
-                  if(ifNull(equals(step_2, 1), 0), `$window_id`, NULL) AS `$window_id_2`,
-                  0 AS exclusion_0,
-                  0 AS exclusion_1,
-                  0 AS exclusion_2
+                  if(equals(e.event, 'step three'), 1, 0) AS step_2
            FROM events AS e
            LEFT OUTER JOIN
              (SELECT argMax(person_distinct_id_overrides.person_id, person_distinct_id_overrides.version) AS person_id,
@@ -672,23 +657,8 @@
                   e.`$session_id` AS `$session_id`,
                   e.`$window_id` AS `$window_id`,
                   if(equals(e.event, 'step one'), 1, 0) AS step_0,
-                  if(ifNull(equals(step_0, 1), 0), timestamp, NULL) AS latest_0,
-                  if(ifNull(equals(step_0, 1), 0), uuid, NULL) AS uuid_0,
-                  if(ifNull(equals(step_0, 1), 0), `$session_id`, NULL) AS `$session_id_0`,
-                  if(ifNull(equals(step_0, 1), 0), `$window_id`, NULL) AS `$window_id_0`,
                   if(equals(e.event, 'step two'), 1, 0) AS step_1,
-                  if(ifNull(equals(step_1, 1), 0), timestamp, NULL) AS latest_1,
-                  if(ifNull(equals(step_1, 1), 0), uuid, NULL) AS uuid_1,
-                  if(ifNull(equals(step_1, 1), 0), `$session_id`, NULL) AS `$session_id_1`,
-                  if(ifNull(equals(step_1, 1), 0), `$window_id`, NULL) AS `$window_id_1`,
-                  if(equals(e.event, 'step three'), 1, 0) AS step_2,
-                  if(ifNull(equals(step_2, 1), 0), timestamp, NULL) AS latest_2,
-                  if(ifNull(equals(step_2, 1), 0), uuid, NULL) AS uuid_2,
-                  if(ifNull(equals(step_2, 1), 0), `$session_id`, NULL) AS `$session_id_2`,
-                  if(ifNull(equals(step_2, 1), 0), `$window_id`, NULL) AS `$window_id_2`,
-                  0 AS exclusion_0,
-                  0 AS exclusion_1,
-                  0 AS exclusion_2
+                  if(equals(e.event, 'step three'), 1, 0) AS step_2
            FROM events AS e
            LEFT OUTER JOIN
              (SELECT argMax(person_distinct_id_overrides.person_id, person_distinct_id_overrides.version) AS person_id,
@@ -759,23 +729,8 @@
                   e.`$session_id` AS `$session_id`,
                   e.`$window_id` AS `$window_id`,
                   if(equals(e.event, 'step one'), 1, 0) AS step_0,
-                  if(ifNull(equals(step_0, 1), 0), timestamp, NULL) AS latest_0,
-                  if(ifNull(equals(step_0, 1), 0), uuid, NULL) AS uuid_0,
-                  if(ifNull(equals(step_0, 1), 0), `$session_id`, NULL) AS `$session_id_0`,
-                  if(ifNull(equals(step_0, 1), 0), `$window_id`, NULL) AS `$window_id_0`,
                   if(equals(e.event, 'step two'), 1, 0) AS step_1,
-                  if(ifNull(equals(step_1, 1), 0), timestamp, NULL) AS latest_1,
-                  if(ifNull(equals(step_1, 1), 0), uuid, NULL) AS uuid_1,
-                  if(ifNull(equals(step_1, 1), 0), `$session_id`, NULL) AS `$session_id_1`,
-                  if(ifNull(equals(step_1, 1), 0), `$window_id`, NULL) AS `$window_id_1`,
-                  if(equals(e.event, 'step three'), 1, 0) AS step_2,
-                  if(ifNull(equals(step_2, 1), 0), timestamp, NULL) AS latest_2,
-                  if(ifNull(equals(step_2, 1), 0), uuid, NULL) AS uuid_2,
-                  if(ifNull(equals(step_2, 1), 0), `$session_id`, NULL) AS `$session_id_2`,
-                  if(ifNull(equals(step_2, 1), 0), `$window_id`, NULL) AS `$window_id_2`,
-                  0 AS exclusion_0,
-                  0 AS exclusion_1,
-                  0 AS exclusion_2
+                  if(equals(e.event, 'step three'), 1, 0) AS step_2
            FROM events AS e
            LEFT OUTER JOIN
              (SELECT argMax(person_distinct_id_overrides.person_id, person_distinct_id_overrides.version) AS person_id,
