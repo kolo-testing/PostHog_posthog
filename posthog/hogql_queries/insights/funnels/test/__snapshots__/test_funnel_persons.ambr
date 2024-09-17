@@ -576,7 +576,7 @@
                af_tuple.4 AS matched_event_uuids_array_array,
                groupArray(tuple(timestamp, uuid, `$session_id`, `$window_id`)) AS user_events,
                mapFromArrays(arrayMap(x -> x.2, user_events), user_events) AS user_events_map,
-               arrayMap(matched_event_uuids_array -> arrayMap(event_uuid -> user_events_map[event_uuid], arrayDistinct(matched_event_uuids_array)), matched_event_uuids_array_array) AS matched_events_array,
+               arrayMap(matched_event_uuids_array -> arrayMap(event_uuid -> user_events_map[event_uuid], matched_event_uuids_array), matched_event_uuids_array_array) AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
@@ -663,7 +663,7 @@
                af_tuple.4 AS matched_event_uuids_array_array,
                groupArray(tuple(timestamp, uuid, `$session_id`, `$window_id`)) AS user_events,
                mapFromArrays(arrayMap(x -> x.2, user_events), user_events) AS user_events_map,
-               arrayMap(matched_event_uuids_array -> arrayMap(event_uuid -> user_events_map[event_uuid], arrayDistinct(matched_event_uuids_array)), matched_event_uuids_array_array) AS matched_events_array,
+               arrayMap(matched_event_uuids_array -> arrayMap(event_uuid -> user_events_map[event_uuid], matched_event_uuids_array), matched_event_uuids_array_array) AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
@@ -750,7 +750,7 @@
                af_tuple.4 AS matched_event_uuids_array_array,
                groupArray(tuple(timestamp, uuid, `$session_id`, `$window_id`)) AS user_events,
                mapFromArrays(arrayMap(x -> x.2, user_events), user_events) AS user_events_map,
-               arrayMap(matched_event_uuids_array -> arrayMap(event_uuid -> user_events_map[event_uuid], arrayDistinct(matched_event_uuids_array)), matched_event_uuids_array_array) AS matched_events_array,
+               arrayMap(matched_event_uuids_array -> arrayMap(event_uuid -> user_events_map[event_uuid], matched_event_uuids_array), matched_event_uuids_array_array) AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
