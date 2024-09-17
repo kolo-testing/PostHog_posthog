@@ -13,9 +13,10 @@ HUMAN_READABLE_TIMESTAMP_FORMAT = "%-d-%b-%Y"
 class FunnelUDF(FunnelBase):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # In base, these fields only get added if you're running an actors query
         if "uuid" not in self._extra_event_fields:
             self._extra_event_fields.append("uuid")
-        for property in ["$session_id", "$window_id"]:
+        for property in ("$session_id", "$window_id"):
             if property not in self._extra_event_properties:
                 self._extra_event_properties.append(property)
 
@@ -73,6 +74,13 @@ class FunnelUDF(FunnelBase):
 
         breakdown_attribution_string = f"{self.context.breakdownAttributionType}{f'_{self.context.funnelsFilter.breakdownAttributionValue}' if self.context.breakdownAttributionType == BreakdownAttributionType.STEP else ''}"
 
+        matched_event_arrays_selects = """
+                af_tuple.4 as matched_event_uuids_array_array,
+                groupArray(tuple(timestamp, uuid, $session_id, $window_id)) as user_events,
+                mapFromArrays(arrayMap(x -> x.2, user_events), user_events) as user_events_map,
+                arrayMap(matched_event_uuids_array -> arrayMap(event_uuid -> user_events_map[event_uuid], matched_event_uuids_array), matched_event_uuids_array_array) as matched_events_array,
+        """
+
         inner_select = parse_select(
             f"""
             SELECT
@@ -87,10 +95,7 @@ class FunnelUDF(FunnelBase):
                 af_tuple.1 as step_reached,
                 af_tuple.2 as breakdown,
                 af_tuple.3 as timings,
-                af_tuple.4 as matched_event_uuids_array_array,
-                groupArray(tuple(timestamp, uuid, $session_id, $window_id)) as user_events,
-                mapFromArrays(arrayMap(x -> x.2, user_events), user_events) as user_events_map,
-                arrayMap(matched_event_uuids_array -> arrayMap(event_uuid -> user_events_map[event_uuid], matched_event_uuids_array), matched_event_uuids_array_array) as matched_events_array,
+                {matched_event_arrays_selects if self._include_matched_events() else ""}
                 aggregation_target
             FROM {{inner_event_query}}
             GROUP BY aggregation_target{breakdown_prop}
@@ -99,10 +104,6 @@ class FunnelUDF(FunnelBase):
             {"inner_event_query": inner_event_query},
         )
         return inner_select
-
-    """ arrayFlatten(matched_event_uuids_array_array) as event_uuids,
-        groupArrayIf(tuple(timestamp, uuid, $session_id, $window_id), has(event_uuids, uuid)) as user_events,
-                mapFromArrays(arrayMap(x -> x.2, user_events), user_events) as user_events_map,"""
 
     def get_query(self) -> ast.SelectQuery:
         inner_select = self._inner_aggregation_query()

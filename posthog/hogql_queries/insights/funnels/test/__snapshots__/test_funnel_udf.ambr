@@ -23,9 +23,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
@@ -88,9 +85,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
@@ -181,9 +175,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
@@ -272,9 +263,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
@@ -345,9 +333,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
@@ -421,9 +406,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
@@ -505,9 +487,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
@@ -589,9 +568,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
@@ -688,9 +664,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'UTC') AS timestamp,
@@ -756,9 +729,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT toTimeZone(e.timestamp, 'US/Pacific') AS timestamp,
@@ -821,9 +791,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT timestamp AS timestamp,
@@ -911,9 +878,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT timestamp AS timestamp,
@@ -1008,9 +972,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT timestamp AS timestamp,
@@ -1103,9 +1064,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT timestamp AS timestamp,
@@ -1211,9 +1169,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT timestamp AS timestamp,
@@ -1319,9 +1274,6 @@
                af_tuple.1 AS step_reached,
                af_tuple.2 AS breakdown,
                af_tuple.3 AS timings,
-               af_tuple.4 AS matched_event_uuids_array_array,
-               arrayFlatten(matched_event_uuids_array_array) AS event_uuids,
-               [[], [], [], [], [], [], [], []] AS matched_events_array,
                aggregation_target AS aggregation_target
         FROM
           (SELECT timestamp AS timestamp,

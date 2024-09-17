@@ -752,12 +752,15 @@ class FunnelBase(ABC):
 
         return ast.And(exprs=conditions)
 
-    def _get_funnel_person_step_events(self) -> list[ast.Expr]:
-        if (
+    def _include_matched_events(self):
+        return (
             hasattr(self.context, "actorsQuery")
             and self.context.actorsQuery is not None
             and self.context.actorsQuery.includeRecordings
-        ):
+        )
+
+    def _get_funnel_person_step_events(self) -> list[ast.Expr]:
+        if self._include_matched_events():
             if self.context.includeFinalMatchingEvents:
                 # Always returns the user's final step of the funnel
                 return [parse_expr("final_matching_events as matching_events")]

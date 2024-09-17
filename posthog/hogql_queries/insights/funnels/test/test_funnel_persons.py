@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Any, Optional, cast
+from unittest.mock import patch, Mock
 from uuid import UUID
 
 from django.utils import timezone
@@ -7,6 +8,7 @@ from freezegun import freeze_time
 
 from posthog.constants import INSIGHT_FUNNELS
 from posthog.hogql_queries.actors_query_runner import ActorsQueryRunner
+from posthog.hogql_queries.insights.funnels.test.test_funnel_udf import funnel_flag_side_effect
 from posthog.hogql_queries.legacy_compatibility.filter_to_query import filter_to_query
 from posthog.models import Cohort
 from posthog.models.event.util import bulk_create_events
@@ -809,3 +811,23 @@ class TestFunnelPersons(ClickhouseTestMixin, APIBaseTest):
         self.assertEqual(len(results), 2)
         self.assertCountEqual(set(results[0][1]["distinct_ids"]), {"person1", "anon1"})
         self.assertCountEqual(set(results[1][1]["distinct_ids"]), {"person2", "anon2"})
+
+
+@patch("posthoganalytics.feature_enabled", new=Mock(side_effect=funnel_flag_side_effect))
+class TestFunnelPersonsUDF(TestFunnelPersons):
+    @patch("posthog.hogql_queries.insights.funnels.funnel_udf.FunnelUDF.actor_query", return_value=None)
+    def test_uses_udf(self, obj):
+        self._create_sample_data_multiple_dropoffs()
+        filters = {
+            "insight": INSIGHT_FUNNELS,
+            "interval": "day",
+            "date_from": "2021-05-01 00:00:00",
+            "date_to": "2021-05-07 00:00:00",
+            "funnel_window_days": 7,
+            "events": [
+                {"id": "step one", "order": 0},
+                {"id": "step two", "order": 1},
+                {"id": "step three", "order": 2},
+            ],
+        }
+        self.assertRaises(Exception, lambda: get_actors(filters, self.team, funnel_step=1))

@@ -80,7 +80,6 @@ def calculate_funnel_from_user_events(
                         timings=[*entered_timestamp[step - 1].timings, timestamp],
                         uuids=[*entered_timestamp[step - 1].uuids, uuid],
                     )
-                    # This might be step - 1
                     if len(event_uuids[step - 1]) < MAX_REPLAY_EVENTS - 1:
                         event_uuids[step - 1].append(uuid)
                 # TODO: If this is strict, and this didn't match, we should remove this
