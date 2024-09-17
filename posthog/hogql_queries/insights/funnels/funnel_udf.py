@@ -224,13 +224,13 @@ class FunnelUDF(FunnelBase):
             and self.context.actorsQuery.includeRecordings
         ):
             if self.context.includeFinalMatchingEvents:
-                # Always returns the user's final step of the funnel
-                return [parse_expr("matched_events_array[step_reached] as matching_events")]
+                # Always returns the user's final step of the funnel, 1 indexed
+                return [parse_expr("matched_events_array[step_reached + 1] as matching_events")]
 
             absolute_actors_step = self._absolute_actors_step
             if absolute_actors_step is None:
                 raise ValueError("Missing funnelStep actors query property")
-            return [parse_expr(f"matched_events_array[{absolute_actors_step}] as matching_events")]
+            return [parse_expr(f"matched_events_array[{absolute_actors_step + 1}] as matching_events")]
         return []
 
     def actor_query(

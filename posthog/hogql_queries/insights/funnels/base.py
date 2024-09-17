@@ -435,16 +435,10 @@ class FunnelBase(ABC):
             extra_fields.append(prop)
 
         funnel_events_query = FunnelEventQuery(
-            context=self.context,
-            extra_fields=[*self.extra_event_fields_and_properties, *extra_fields],
-            # extra_event_properties=self._extra_event_properties,
+            context=self.context, extra_fields=[*self.extra_event_fields_and_properties, *extra_fields]
         ).to_query(
             skip_entity_filter=skip_entity_filter,
         )
-        # funnel_events_query, params = FunnelEventQuery(
-        #     extra_fields=[*self._extra_event_fields, *extra_fields],
-        #     extra_event_properties=self._extra_event_properties,
-        # ).get_query(entities_to_use, entity_name, skip_entity_filter=skip_entity_filter)
 
         all_step_cols: list[ast.Expr] = []
         all_exclusions: list[list[FunnelExclusionEventsNode | FunnelExclusionActionsNode]] = []
