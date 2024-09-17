@@ -4204,3 +4204,24 @@ def test2():
     ]
     for b in a:
         calculate_funnel_from_user_events(6, 1123200, "first_touch", "ordered", [[]], b)
+
+
+def test3():
+    from contextlib import redirect_stdout
+    import io
+
+    data = [
+        (1609545600, "11111111-1111-1111-1111-111111111111", [], [1]),
+        (1609632000, "21111111-1111-1111-1111-111111111111", [], [2]),
+    ]
+
+    f = io.StringIO()
+    with redirect_stdout(f):
+        calculate_funnel_from_user_events(3, 1209600, "first_touch", "ordered", [[]], data)
+    result = f.getvalue()
+
+    assert 1 == 1
+    assert (
+        result
+        == '{"result": [[1, [], [86400], [["11111111-1111-1111-1111-111111111111"], ["21111111-1111-1111-1111-111111111111"], []]]]}\n'
+    )

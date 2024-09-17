@@ -105,7 +105,8 @@ def calculate_funnel_from_user_events(
             final_index = cast(int, max_step[0])
             final = cast(EnteredTimestamp, max_step[1])
             for i in range(final_index):
-                event_uuids[i].insert(0, final.uuids[i])
+                if len(event_uuids[i]) >= MAX_REPLAY_EVENTS and final.uuids[i] not in event_uuids[i]:
+                    event_uuids[i].insert(0, final.uuids[i])
             results.append(
                 (
                     final_index - 1,
