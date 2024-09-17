@@ -443,7 +443,7 @@ class FunnelBase(ABC):
         all_step_cols: list[ast.Expr] = []
         all_exclusions: list[list[FunnelExclusionEventsNode | FunnelExclusionActionsNode]] = []
         for index, entity in enumerate(entities_to_use):
-            step_cols = self._get_step_col(entity, index, entity_name)
+            step_cols = self._get_step_col(entity, index, entity_name, for_udf=True)
             all_step_cols.extend(step_cols)
             all_exclusions.append([])
 
@@ -452,8 +452,8 @@ class FunnelBase(ABC):
                 all_exclusions[i].append(excluded_entity)
 
         for index, exclusions in enumerate(all_exclusions):
-            exclusion_col_expr = self._get_exclusions_col(exclusions, index, entity_name)
-            all_step_cols.append(exclusion_col_expr)
+            if (exclusion_col_expr := self._get_exclusions_col(exclusions, index, entity_name)) is not None:
+                all_step_cols.append(exclusion_col_expr)
 
         breakdown_select_prop = self._get_breakdown_select_prop()
 
@@ -482,9 +482,9 @@ class FunnelBase(ABC):
         exclusions: list[ExclusionEntityNode],
         index: int,
         entity_name: str,
-    ) -> ast.Expr:
+    ) -> ast.Expr | None:
         if not exclusions:
-            return parse_expr(f"0 as exclusion_{index}")
+            return None
 
         conditions = [self._build_step_query(exclusion, index, entity_name, "") for exclusion in exclusions]
         return parse_expr(
@@ -658,10 +658,10 @@ class FunnelBase(ABC):
                 parse_expr(f"if({step_prefix}step_{index} = 1, timestamp, null) as {step_prefix}latest_{index}")
             )
 
-        for field in self.extra_event_fields_and_properties:
-            step_cols.append(
-                parse_expr(f'if({step_prefix}step_{index} = 1, "{field}", null) as "{step_prefix}{field}_{index}"')
-            )
+            for field in self.extra_event_fields_and_properties:
+                step_cols.append(
+                    parse_expr(f'if({step_prefix}step_{index} = 1, "{field}", null) as "{step_prefix}{field}_{index}"')
+                )
 
         return step_cols
 
