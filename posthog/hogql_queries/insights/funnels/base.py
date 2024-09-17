@@ -436,8 +436,8 @@ class FunnelBase(ABC):
 
         funnel_events_query = FunnelEventQuery(
             context=self.context,
-            extra_fields=[*self._extra_event_fields, *extra_fields],
-            extra_event_properties=self._extra_event_properties,
+            extra_fields=[*self.extra_event_fields_and_properties, *extra_fields],
+            # extra_event_properties=self._extra_event_properties,
         ).to_query(
             skip_entity_filter=skip_entity_filter,
         )

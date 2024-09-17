@@ -15,6 +15,9 @@ class FunnelUDF(FunnelBase):
         super().__init__(*args, **kwargs)
         if "uuid" not in self._extra_event_fields:
             self._extra_event_fields.append("uuid")
+        for property in ["$session_id", "$window_id"]:
+            if property not in self._extra_event_properties:
+                self._extra_event_properties.append(property)
 
     def get_step_counts_query(self):
         max_steps = self.context.max_steps
@@ -84,7 +87,9 @@ class FunnelUDF(FunnelBase):
                 af_tuple.1 as step_reached,
                 af_tuple.2 as breakdown,
                 af_tuple.3 as timings,
-                af_tuple.4 as matched_events_array,
+                af_tuple.4 as matched_event_uuids_array_array,
+                arrayFlatten(matched_event_uuids_array_array) as event_uuids,
+                [[],[],[],[],[],[],[],[]] as matched_events_array,
                 aggregation_target
             FROM {{inner_event_query}}
             GROUP BY aggregation_target{breakdown_prop}
@@ -93,6 +98,9 @@ class FunnelUDF(FunnelBase):
             {"inner_event_query": inner_event_query},
         )
         return inner_select
+
+    """                groupArrayIf(tuple(timestamp, uuid, session_id, window_id), event_uuids.has(uuid)) as user_events,
+                mapFromArrays(arrayMap(x -> x.2, user_events), user_events) as user_events_map,"""
 
     def get_query(self) -> ast.SelectQuery:
         inner_select = self._inner_aggregation_query()
@@ -209,25 +217,39 @@ class FunnelUDF(FunnelBase):
 
         return ast.And(exprs=conditions)
 
+    def _get_funnel_person_step_events(self) -> list[ast.Expr]:
+        if (
+            hasattr(self.context, "actorsQuery")
+            and self.context.actorsQuery is not None
+            and self.context.actorsQuery.includeRecordings
+        ):
+            if self.context.includeFinalMatchingEvents:
+                # Always returns the user's final step of the funnel
+                return [parse_expr("matched_events_array[step_reached] as matching_events")]
+
+            absolute_actors_step = self._absolute_actors_step
+            if absolute_actors_step is None:
+                raise ValueError("Missing funnelStep actors query property")
+            return [parse_expr(f"matched_events_array[{absolute_actors_step}] as matching_events")]
+        return []
+
     def actor_query(
         self,
         extra_fields: Optional[list[str]] = None,
     ) -> ast.SelectQuery:
-        inner_select = self._inner_aggregation_query()
-
+        select: list[ast.Expr] = [
+            ast.Alias(alias="actor_id", expr=ast.Field(chain=["aggregation_target"])),
+            *self._get_funnel_person_step_events(),
+            # *self._get_timestamp_outer_select(),
+            *([ast.Field(chain=[field]) for field in extra_fields or []]),
+        ]
+        select_from = ast.JoinExpr(table=self._inner_aggregation_query())
         where = self._get_funnel_person_step_condition()
+        order_by = [ast.OrderExpr(expr=ast.Field(chain=["aggregation_target"]))]
 
-        s = parse_select(
-            f"""
-            SELECT
-                aggregation_target AS actor_id,
-                [] AS matching_events
-            FROM
-                {{inner_select}}
-            WHERE
-                {{where}}
-        """,
-            {"inner_select": inner_select, "where": where},
+        return ast.SelectQuery(
+            select=select,
+            select_from=select_from,
+            order_by=order_by,
+            where=where,
         )
-
-        return s
