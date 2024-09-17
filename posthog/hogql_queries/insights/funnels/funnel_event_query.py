@@ -52,7 +52,7 @@ class FunnelEventQuery:
         select: list[ast.Expr] = [
             ast.Alias(alias="timestamp", expr=ast.Field(chain=[self.EVENT_TABLE_ALIAS, "timestamp"])),
             ast.Alias(alias="aggregation_target", expr=self._aggregation_target_expr()),
-            ast.Alias(alias="uuid", expr=ast.Field(chain=[self.EVENT_TABLE_ALIAS, "uuid"])),
+            # ast.Alias(alias="uuid", expr=ast.Field(chain=[self.EVENT_TABLE_ALIAS, "uuid"])),
             *_extra_fields,
         ]
 
