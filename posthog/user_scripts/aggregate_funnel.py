@@ -100,12 +100,13 @@ def calculate_funnel_from_user_events(
         # entered_timestamp = [(0, "", [])] * (num_steps + 1)
         max_step[:] = [0, default_entered_timestamp]
         entered_timestamp: list[EnteredTimestamp] = [default_entered_timestamp] * (num_steps + 1)
-        event_uuids = [[] for _ in range(num_steps)]
+        event_uuids: list[list[str]] = [[] for _ in range(num_steps)]
 
         def add_max_step():
             final_index = cast(int, max_step[0])
             final = cast(EnteredTimestamp, max_step[1])
-            [event_uuids[i].insert(0, final.uuids[i]) for i in range(final_index)]
+            for i in range(final_index):
+                event_uuids[i].insert(0, final.uuids[i])
             results.append(
                 (
                     final_index - 1,
