@@ -1,6 +1,5 @@
 from datetime import date, datetime, timedelta
 from typing import cast
-from unittest.mock import patch, Mock
 
 from zoneinfo import ZoneInfo
 from freezegun.api import freeze_time
@@ -24,8 +23,7 @@ FORMAT_TIME = "%Y-%m-%d %H:%M:%S"
 FORMAT_TIME_DAY_END = "%Y-%m-%d 23:59:59"
 
 
-class BaseTestFunnelTrends(ClickhouseTestMixin, APIBaseTest):
-    __test__ = False
+class TestFunnelTrends(ClickhouseTestMixin, APIBaseTest):
     maxDiff = None
 
     def _get_actors_at_step(self, filter, entrance_period_start, drop_off):
@@ -1614,12 +1612,7 @@ class BaseTestFunnelTrends(ClickhouseTestMixin, APIBaseTest):
 
         self.assertEqual(len(results), 1)
 
-
-@patch("posthoganalytics.feature_enabled", new=Mock(return_value=False))
-class TestFunnelTrends(BaseTestFunnelTrends):
-    __test__ = True
-
-    def test_assert_flag_is_working(self):
+    def test_assert_udf_flag_is_working(self):
         filters = {
             "insight": INSIGHT_FUNNELS,
             "funnel_viz_type": "trends",

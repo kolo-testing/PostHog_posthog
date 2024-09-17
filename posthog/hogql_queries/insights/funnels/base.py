@@ -447,12 +447,13 @@ class FunnelBase(ABC):
             all_step_cols.extend(step_cols)
             all_exclusions.append([])
 
-        for excluded_entity in funnelsFilter.exclusions or []:
-            for i in range(excluded_entity.funnelFromStep + 1, excluded_entity.funnelToStep + 1):
-                all_exclusions[i].append(excluded_entity)
+        if funnelsFilter.exclusions:
+            for excluded_entity in funnelsFilter.exclusions:
+                for i in range(excluded_entity.funnelFromStep + 1, excluded_entity.funnelToStep + 1):
+                    all_exclusions[i].append(excluded_entity)
 
-        for index, exclusions in enumerate(all_exclusions):
-            if (exclusion_col_expr := self._get_exclusions_col(exclusions, index, entity_name)) is not None:
+            for index, exclusions in enumerate(all_exclusions):
+                exclusion_col_expr = self._get_exclusions_col(exclusions, index, entity_name)
                 all_step_cols.append(exclusion_col_expr)
 
         breakdown_select_prop = self._get_breakdown_select_prop()
@@ -482,10 +483,9 @@ class FunnelBase(ABC):
         exclusions: list[ExclusionEntityNode],
         index: int,
         entity_name: str,
-    ) -> ast.Expr | None:
+    ) -> ast.Expr:
         if not exclusions:
-            return None
-
+            return parse_expr(f"0 as exclusion_{index}")
         conditions = [self._build_step_query(exclusion, index, entity_name, "") for exclusion in exclusions]
         return parse_expr(
             f"if({{condition}}, 1, 0) as exclusion_{index}", placeholders={"condition": ast.Or(exprs=conditions)}
