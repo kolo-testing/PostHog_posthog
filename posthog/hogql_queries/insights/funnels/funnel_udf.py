@@ -1,7 +1,7 @@
 from typing import cast, Optional
 
 from posthog.hogql import ast
-from posthog.hogql.parser import parse_select
+from posthog.hogql.parser import parse_select, parse_expr
 from posthog.hogql_queries.insights.funnels.base import FunnelBase
 from posthog.schema import BreakdownType, BreakdownAttributionType
 from posthog.utils import DATERANGE_MAP
@@ -81,14 +81,14 @@ class FunnelUDF(FunnelBase):
                     {prop_vals},
                     arraySort(t -> t.1, groupArray(tuple(toFloat(timestamp), uuid, {prop_selector}, arrayFilter((x) -> x != 0, [{steps}{exclusions}]))))
                 )) as af_tuple,
-                af_tuple.1 as af,
+                af_tuple.1 as step_reached,
                 af_tuple.2 as breakdown,
                 af_tuple.3 as timings,
                 af_tuple.4 as matched_events_array,
                 aggregation_target
             FROM {{inner_event_query}}
             GROUP BY aggregation_target{breakdown_prop}
-            HAVING af >= 0
+            HAVING step_reached >= 0
         """,
             {"inner_event_query": inner_event_query},
         )
@@ -98,7 +98,7 @@ class FunnelUDF(FunnelBase):
         inner_select = self._inner_aggregation_query()
 
         step_results = ",".join(
-            [f"countIf(ifNull(equals(af, {i}), 0)) AS step_{i+1}" for i in range(self.context.max_steps)]
+            [f"countIf(ifNull(equals(step_reached, {i}), 0)) AS step_{i+1}" for i in range(self.context.max_steps)]
         )
         step_results2 = ",".join([f"sum(step_{i+1}) AS step_{i+1}" for i in range(self.context.max_steps)])
 
@@ -171,18 +171,51 @@ class FunnelUDF(FunnelBase):
 
         return cast(ast.SelectQuery, s)
 
+    def _get_funnel_person_step_condition(self) -> ast.Expr:
+        actorsQuery, breakdownType = (
+            self.context.actorsQuery,
+            self.context.breakdownType,
+        )
+        assert actorsQuery is not None
+
+        funnelStep = actorsQuery.funnelStep
+        funnelCustomSteps = actorsQuery.funnelCustomSteps
+        funnelStepBreakdown = actorsQuery.funnelStepBreakdown
+
+        conditions: list[ast.Expr] = []
+
+        if funnelCustomSteps:
+            # this is an adjustment for how UDF funnels represent steps
+            funnelCustomSteps = [x - 1 for x in funnelCustomSteps]
+            conditions.append(parse_expr(f"step_reached IN {funnelCustomSteps}"))
+        elif funnelStep is not None:
+            if funnelStep >= 0:
+                conditions.append(parse_expr(f"step_reached >= {funnelStep - 1}"))
+            else:
+                conditions.append(parse_expr(f"step_reached = {-funnelStep - 2}"))
+        else:
+            raise ValueError("Missing both funnelStep and funnelCustomSteps")
+
+        if funnelStepBreakdown is not None:
+            if isinstance(funnelStepBreakdown, int) and breakdownType != "cohort":
+                funnelStepBreakdown = str(funnelStepBreakdown)
+
+            conditions.append(
+                parse_expr(
+                    "arrayFlatten(array(breakdown)) = arrayFlatten(array({funnelStepBreakdown}))",
+                    {"funnelStepBreakdown": ast.Constant(value=funnelStepBreakdown)},
+                )
+            )
+
+        return ast.And(exprs=conditions)
+
     def actor_query(
         self,
         extra_fields: Optional[list[str]] = None,
     ) -> ast.SelectQuery:
         inner_select = self._inner_aggregation_query()
 
-        funnelStep = self.context.actorsQuery.funnelStep
-
-        if funnelStep > 0:
-            where = f"af >= {funnelStep - 1}"
-        else:
-            where = f"af = {-funnelStep - 2}"
+        where = self._get_funnel_person_step_condition()
 
         s = parse_select(
             f"""
@@ -192,9 +225,9 @@ class FunnelUDF(FunnelBase):
             FROM
                 {{inner_select}}
             WHERE
-                {where}
+                {{where}}
         """,
-            {"inner_select": inner_select},
+            {"inner_select": inner_select, "where": where},
         )
 
         return s
