@@ -88,8 +88,9 @@ class FunnelUDF(FunnelBase):
                 af_tuple.2 as breakdown,
                 af_tuple.3 as timings,
                 af_tuple.4 as matched_event_uuids_array_array,
-                arrayFlatten(matched_event_uuids_array_array) as event_uuids,
-                [[],[],[],[],[],[],[],[]] as matched_events_array,
+                groupArray(tuple(timestamp, uuid, $session_id, $window_id)) as user_events,
+                mapFromArrays(arrayMap(x -> x.2, user_events), user_events) as user_events_map,
+                arrayMap(matched_event_uuids_array -> arrayMap(event_uuid -> user_events_map[event_uuid], matched_event_uuids_array), matched_event_uuids_array_array) as matched_events_array,
                 aggregation_target
             FROM {{inner_event_query}}
             GROUP BY aggregation_target{breakdown_prop}
@@ -99,7 +100,8 @@ class FunnelUDF(FunnelBase):
         )
         return inner_select
 
-    """                groupArrayIf(tuple(timestamp, uuid, session_id, window_id), event_uuids.has(uuid)) as user_events,
+    """ arrayFlatten(matched_event_uuids_array_array) as event_uuids,
+        groupArrayIf(tuple(timestamp, uuid, $session_id, $window_id), has(event_uuids, uuid)) as user_events,
                 mapFromArrays(arrayMap(x -> x.2, user_events), user_events) as user_events_map,"""
 
     def get_query(self) -> ast.SelectQuery:
